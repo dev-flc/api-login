@@ -1,2 +1,2 @@
-const message = 'Hello, TypeScript!! '
-console.log(message)
+const messagess = 'Hello, TypeScript!'
+console.log(messagess)
