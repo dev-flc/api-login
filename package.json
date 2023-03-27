@@ -48,5 +48,10 @@
       "eslint --fix",
       "prettier --write"
     ]
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   }
 }
