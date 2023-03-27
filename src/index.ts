@@ -6,7 +6,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const { PORT } = process.env
-const NEW_PORT = PORT || 3003
+const NEW_PORT = PORT || 3002
 const APP = express()
 
 APP.use(express.json())
