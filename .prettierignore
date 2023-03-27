@@ -1,0 +1,10 @@
+package-lock.json
+package.json
+README.md
+LICENCE
+.gitignore
+.eslintignore
+.prettierignore
+node_modules/
+api/
+.eslintcache
