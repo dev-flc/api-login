@@ -1,5 +1,6 @@
 import { model, Schema } from 'mongoose'
 import { Usuario } from 'src/interfaces/users/interface-users'
+import bcrypt from 'bcrypt'
 
 const schemeUser = new Schema<Usuario>(
   {
@@ -53,6 +54,14 @@ const schemeUser = new Schema<Usuario>(
     versionKey: false
   }
 )
+
+schemeUser.pre('save', async function (next) {
+  if (!this.isModified('password')) return next()
+  const salt = await bcrypt.genSalt(10)
+  const hash = await bcrypt.hash(this.password, salt)
+  this.password = hash
+  next()
+})
 
 const User = model<Usuario>('users', schemeUser)
 export { User }
