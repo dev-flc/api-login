@@ -11,7 +11,7 @@ export const controllerUserList = async () => {
   try {
     const userList = await User.find().select([
       '-password',
-      '-tokenConfirm',
+      //'-tokenConfirm',
       '-createdAt',
       '-updatedAt'
     ])

@@ -3,7 +3,7 @@ import {
   getUserList,
   postUserRegister
 } from './../services/users/service-users'
-import { postSignIn } from './../services/auth/service-auth'
+import { postSignIn, getConfirmAccount } from './../services/auth/service-auth'
 
 const router = express.Router()
 
@@ -11,6 +11,7 @@ router
 
   // Auth
   .post('/api/auth/sign-in', postSignIn)
+  .get('/api/auth/confirm-account/:token', getConfirmAccount)
 
   // User
   .get('/api/user/list', getUserList)

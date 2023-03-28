@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken'
 
 export const verifyAccessToken = (token: string) => {
-  console.log('process.env.JWT_SECRET==>', process.env.JWT_SECRET)
   jwt.verify(token, process.env.JWT_SECRET || '')
 }
 
