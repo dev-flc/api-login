@@ -1,10 +1,11 @@
 import express from 'express'
+import { AUTH } from './../middleware/middleware-auth'
 import {
   getUserList,
-  postUserRegister
+  postUserRegister,
+  deleteUserDelete
 } from './../services/users/service-users'
 import { postSignIn, getConfirmAccount } from './../services/auth/service-auth'
-import { AUTH } from './../middleware/middleware-auth'
 
 const router = express.Router()
 
@@ -17,5 +18,6 @@ router
   // User
   .get('/api/user/list', AUTH, getUserList)
   .post('/api/user/register', postUserRegister)
+  .delete('/api/user/delete/:id', AUTH, deleteUserDelete)
 
 export { router }
