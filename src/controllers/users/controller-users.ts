@@ -8,41 +8,42 @@ import { validationMongoErrors, encode64 } from './../../utils/utils'
 import { generateAccessToken } from './../../utils/jwt'
 
 export const controllerUserList = async () => {
-  return await User.find()
-    .select(['-password', '-tokenConfirm', '-createdAt', '-updatedAt'])
-    .then(dataList => {
-      const data = dataList.reduce(
-        (obj, usaurio: Usuario) => ({ ...obj, [usaurio._id]: usaurio }),
-        {}
-      )
-      const { code, name } = HTTP_STATUS_CODES['OK']
-      return { code, data, message: name }
-    })
-    .catch(error => {
-      return validationMongoErrors(error)
-    })
+  try {
+    const userList = await User.find().select([
+      '-password',
+      '-tokenConfirm',
+      '-createdAt',
+      '-updatedAt'
+    ])
+    const data = userList.reduce(
+      (obj, usuario: Usuario) => ({ ...obj, [usuario._id]: usuario }),
+      {}
+    )
+    const { code, name } = HTTP_STATUS_CODES.OK
+    return { code, data, message: name }
+  } catch (error) {
+    return validationMongoErrors(error)
+  }
 }
 
-export const controllerUserRegister = async (body: {
-  email: string
-  userName: string
-}) => {
-  const { email, userName } = body
-  const token = await generateAccessToken(
-    { email, userName },
-    JWT_VALID_TIME.EXPIRE_JWT_CONFIRM_ACCOUNT
-  )
-  return await new User({ ...body, tokenConfirm: encode64(token) })
-    .save()
-    .then((infUser: Usuario) => {
-      //sendMail(email, userName)
-      const { code, name } = HTTP_STATUS_CODES['OK']
-      const { _id, confirmAccount, email, personalInformation, userName } =
-        infUser
-      const data = { _id, confirmAccount, email, personalInformation, userName }
-      return { code, data, message: name }
-    })
-    .catch((error: any) => {
-      return validationMongoErrors(error)
-    })
+export const controllerUserRegister = async (body: Usuario) => {
+  try {
+    const { email, userName } = body
+    const token = await generateAccessToken(
+      { email, userName },
+      JWT_VALID_TIME.EXPIRE_JWT_CONFIRM_ACCOUNT
+    )
+    const encodedToken = encode64(token)
+    const infUser = await new User({
+      ...body,
+      tokenConfirm: encodedToken
+    }).save()
+    //sendMail(email, userName)// pendiente enviar correo
+    const { code, name } = HTTP_STATUS_CODES.OK
+    const { _id, confirmAccount, personalInformation } = infUser
+    const data = { _id, confirmAccount, email, personalInformation, userName }
+    return { code, data, message: name }
+  } catch (error) {
+    return validationMongoErrors(error)
+  }
 }
