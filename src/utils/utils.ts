@@ -1,4 +1,4 @@
-import { SEND_CODE_STATUS } from './constants/constants'
+import { HTTP_STATUS_CODES } from './constants/constants'
 
 export const encode64 = (str: string) => Buffer.from(str).toString('base64')
 
@@ -16,37 +16,48 @@ const getKeyErrors = (error: any) => {
 
 export const validationMongoErrors = async (error: any) => {
   const result = {
-    code: SEND_CODE_STATUS[400].code,
-    message: SEND_CODE_STATUS[400].name,
-    nameError: SEND_CODE_STATUS[400].name
+    code: HTTP_STATUS_CODES.BAD_REQUEST.code,
+    message: HTTP_STATUS_CODES.BAD_REQUEST.name,
+    nameError: HTTP_STATUS_CODES.BAD_REQUEST.name
   }
 
-  if (error.name === 'ValidationError') {
-    const message = getKeyErrors(error)
-    result.message = message[message.key]
-    result.code = SEND_CODE_STATUS[422].code
-    result.nameError = SEND_CODE_STATUS[422].name
-  } else if (error.name === 'MongoServerError' && error.code === 11000) {
-    const entries = Object.entries(error.keyValue)
-    const valores = entries
-      .map(([clave, valor]) => `${clave}: ${valor}`)
-      .join(', ')
-
-    result.message = `El dato ${valores}, ya existe`
-    result.code = SEND_CODE_STATUS[422].code
-    result.nameError = SEND_CODE_STATUS[422].name
-  } else if (error.name === 'CastError') {
-    result.message = error.message
-    result.code = SEND_CODE_STATUS[422].code
-    result.nameError = SEND_CODE_STATUS[422].name
-  } else if (error.name === 'Error') {
-    result.message = error.message
-    result.code = SEND_CODE_STATUS[422].code
-    result.nameError = SEND_CODE_STATUS[422].name
-  } else if (error.name === 'TokenExpiredError') {
-    result.message = error.message
-    result.code = SEND_CODE_STATUS[401].code
-    result.nameError = SEND_CODE_STATUS[401].name
+  switch (error.name) {
+    case 'ValidationError': {
+      const message = getKeyErrors(error)
+      result.message = message[message.key]
+      result.code = HTTP_STATUS_CODES.UNPROCESSABLE_ENTITY.code
+      result.nameError = HTTP_STATUS_CODES.UNPROCESSABLE_ENTITY.name
+      break
+    }
+    case 'MongoServerError': {
+      if (error.code === 11000) {
+        const entries = Object.entries(error.keyValue)
+        const valores = entries
+          .map(([clave, valor]) => `${clave}:${valor}`)
+          .join(', ')
+        result.message = `El dato ${valores}, ya existe`
+        result.code = HTTP_STATUS_CODES.UNPROCESSABLE_ENTITY.code
+        result.nameError = HTTP_STATUS_CODES.UNPROCESSABLE_ENTITY.name
+      }
+      break
+    }
+    case 'CastError':
+    case 'Error': {
+      result.message = error.message
+      result.code = HTTP_STATUS_CODES.UNPROCESSABLE_ENTITY.code
+      result.nameError = HTTP_STATUS_CODES.UNPROCESSABLE_ENTITY.name
+      break
+    }
+    case 'TokenExpiredError': {
+      result.message = error.message
+      result.code = HTTP_STATUS_CODES.UNAUTHORIZED.code
+      result.nameError = HTTP_STATUS_CODES.UNAUTHORIZED.name
+      break
+    }
+    default:
+      result.message = HTTP_STATUS_CODES.CONFLICT.name
+      result.code = HTTP_STATUS_CODES.CONFLICT.code
+      result.nameError = HTTP_STATUS_CODES.CONFLICT.name
   }
 
   return result

@@ -1,6 +1,6 @@
 import { User } from './../../models/users/model-users'
 import {
-  SEND_CODE_STATUS,
+  HTTP_STATUS_CODES,
   JWT_VALID_TIME
 } from '../../utils/constants/constants'
 import { Usuario } from './../../interfaces/users/interface-users'
@@ -15,7 +15,7 @@ export const controllerUserList = async () => {
         (obj, usaurio: Usuario) => ({ ...obj, [usaurio._id]: usaurio }),
         {}
       )
-      const { code, name } = SEND_CODE_STATUS[200]
+      const { code, name } = HTTP_STATUS_CODES['OK']
       return { code, data, message: name }
     })
     .catch(error => {
@@ -36,7 +36,7 @@ export const controllerUserRegister = async (body: {
     .save()
     .then((infUser: Usuario) => {
       //sendMail(email, userName)
-      const { code, name } = SEND_CODE_STATUS[200]
+      const { code, name } = HTTP_STATUS_CODES['OK']
       const { _id, confirmAccount, email, personalInformation, userName } =
         infUser
       const data = { _id, confirmAccount, email, personalInformation, userName }

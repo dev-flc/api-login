@@ -16,33 +16,13 @@ export const JWT_VALID_TIME = {
   EXPIRE_JWT_SESSION: '24h'
 }
 
-export const SEND_CODE_STATUS = {
-  200: {
-    code: 200,
-    name: 'Ok'
-  },
-  400: {
-    code: 400,
-    name: 'Bad Request'
-  },
-  401: {
-    code: 401,
-    name: 'Unauthorized'
-  },
-  403: {
-    code: 403,
-    name: 'Forbidden'
-  },
-  404: {
-    code: 404,
-    name: 'Not Found'
-  },
-  422: {
-    code: 422,
-    name: 'Unprocessable Entity'
-  },
-  500: {
-    code: 500,
-    name: 'Internal Server Error'
-  }
+export const HTTP_STATUS_CODES = {
+  OK: { code: 200, name: 'ok' },
+  BAD_REQUEST: { code: 400, name: 'Bad Request' },
+  UNAUTHORIZED: { code: 401, name: 'Unauthorized' },
+  FORBIDDEN: { code: 403, name: 'Forbidden' },
+  NOT_FOUNT: { code: 404, name: 'Not Found' },
+  UNPROCESSABLE_ENTITY: { code: 422, name: 'Unprocessable Entity' },
+  INTERNAL_SERVER_ERROR: { code: 500, name: 'Internal Server Error' },
+  CONFLICT: { code: 409, name: 'Conflict' }
 }
