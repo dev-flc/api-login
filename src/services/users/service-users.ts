@@ -1,8 +1,8 @@
+import { Request, Response } from 'express'
 import {
   controllerUserList,
   controllerUserRegister
 } from '../../controllers/users/controller-users'
-import { Request, Response } from 'express'
 import { CONTENT_TYPE } from './../../utils/constants/constants'
 
 // List users
