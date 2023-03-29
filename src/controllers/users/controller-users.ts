@@ -6,6 +6,7 @@ import {
 import { Usuario } from './../../interfaces/users/interface-users'
 import { validationMongoErrors, encode64 } from './../../utils/utils'
 import { generateAccessToken } from './../../utils/jwt'
+import { sendMail } from './../../utils/send-mail'
 
 export const controllerUserList = async () => {
   try {
@@ -38,9 +39,10 @@ export const controllerUserRegister = async (body: Usuario) => {
       ...body,
       tokenConfirm: encodedToken
     }).save()
-    //sendMail(email, userName)// pendiente enviar correo
     const { code, name } = HTTP_STATUS_CODES.OK
     const { _id, confirmAccount, personalInformation } = infUser
+    const { firstName, lastName, name: personalName } = personalInformation
+    sendMail(email, `${personalName} ${lastName} ${firstName}`, encodedToken)
     const data = {
       _id,
       confirmAccount,
