@@ -6,20 +6,22 @@ import {
   deleteUserDelete,
   putUserUpdate
 } from './../services/users/service-users'
-import { postSignIn, getConfirmAccount } from './../services/auth/service-auth'
-
+import {
+  postSignIn,
+  getConfirmAccount,
+  getVerifyAccount
+} from './../services/auth/service-auth'
 const router = express.Router()
 
 router
-
   // Auth
   .post('/api/auth/sign-in', postSignIn)
   .get('/api/auth/confirm-account/:token', getConfirmAccount)
+  .get('/api/auth/verify-account/:token', getVerifyAccount)
 
   // User
   .get('/api/user/list', AUTH, getUserList)
   .post('/api/user/register', postUserRegister)
   .delete('/api/user/delete/:id', AUTH, deleteUserDelete)
   .put('/api/user/update/:id', AUTH, putUserUpdate)
-
 export { router }

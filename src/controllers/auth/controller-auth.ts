@@ -7,8 +7,6 @@ import {
   HTTP_STATUS_CODES
 } from './../../utils/constants/constants'
 
-import { omit } from 'lodash'
-
 export const controllerAuthSignIn = async (body: DataAuth) => {
   try {
     const { email, password } = body
@@ -21,7 +19,7 @@ export const controllerAuthSignIn = async (body: DataAuth) => {
       throw new Error('Usuario no registrado')
     }
     if (!user.confirmAccount) {
-      throw new Error('La cuenta no esta confirmada')
+      throw new Error('La cuenta no esta verificada')
     }
     const isPasswordMatch = await user.comparePassword(password)
     if (!isPasswordMatch) {
@@ -58,10 +56,37 @@ export const controllerConfirmAccount = async (tokenConfirm: string) => {
     }
     verifyAccessToken(decode64(tokenConfirm))
     user.confirmAccount = true
+    user.tokenConfirm = null
     await user.save()
-
     const { code, name } = HTTP_STATUS_CODES.OK
     return { code, message: name, user }
+  } catch (error) {
+    return validationMongoErrors(error)
+  }
+}
+
+export const controllerVerifyAccount = async (tokenConfirm: string) => {
+  try {
+    if (!tokenConfirm || typeof tokenConfirm !== 'string') {
+      throw new Error(
+        'Entrada inválida: tokenConfirm debe ser una cadena no vacía'
+      )
+    }
+    const user = await User.findOne({ tokenConfirm }).select([
+      '-password',
+      '-tokenConfirm',
+      '-createdAt',
+      '-updatedAt'
+    ])
+    if (!user) {
+      throw new Error('Token inválido')
+    }
+    verifyAccessToken(decode64(tokenConfirm))
+    user.confirmAccount = true
+    user.tokenConfirm = null
+    await user.save()
+    const { code } = HTTP_STATUS_CODES.OK
+    return { code, user }
   } catch (error) {
     return validationMongoErrors(error)
   }

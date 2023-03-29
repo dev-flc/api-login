@@ -41,7 +41,14 @@ export const controllerUserRegister = async (body: Usuario) => {
     //sendMail(email, userName)// pendiente enviar correo
     const { code, name } = HTTP_STATUS_CODES.OK
     const { _id, confirmAccount, personalInformation } = infUser
-    const data = { _id, confirmAccount, email, personalInformation, userName }
+    const data = {
+      _id,
+      confirmAccount,
+      email,
+      personalInformation,
+      userName,
+      tokenConfirm: encodedToken
+    }
     return { code, data, message: name }
   } catch (error) {
     return validationMongoErrors(error)
