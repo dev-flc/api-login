@@ -66,8 +66,7 @@ schemeUser.pre('save', async function (next) {
 schemeUser.methods.comparePassword = async function (
   candidatePassword: string
 ) {
-  const data = await bcrypt.compare(candidatePassword, this.password)
-  return data
+  return await bcrypt.compare(candidatePassword, this.password)
 }
 
 const User = model<Usuario>('users', schemeUser)

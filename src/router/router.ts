@@ -3,7 +3,8 @@ import { AUTH } from './../middleware/middleware-auth'
 import {
   getUserList,
   postUserRegister,
-  deleteUserDelete
+  deleteUserDelete,
+  putUserUpdate
 } from './../services/users/service-users'
 import { postSignIn, getConfirmAccount } from './../services/auth/service-auth'
 
@@ -19,5 +20,6 @@ router
   .get('/api/user/list', AUTH, getUserList)
   .post('/api/user/register', postUserRegister)
   .delete('/api/user/delete/:id', AUTH, deleteUserDelete)
+  .put('/api/user/update/:id', AUTH, putUserUpdate)
 
 export { router }

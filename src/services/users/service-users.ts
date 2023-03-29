@@ -2,7 +2,8 @@ import { Request, Response } from 'express'
 import {
   controllerUserList,
   controllerUserRegister,
-  controllerUserDelete
+  controllerUserDelete,
+  controllerUserUpdate
 } from '../../controllers/users/controller-users'
 import { CONTENT_TYPE } from './../../utils/constants/constants'
 
@@ -29,6 +30,14 @@ export const deleteUserDelete = async (
   response: Response
 ) => {
   const resp = await controllerUserDelete(request.params.id)
+  response.set({ 'Content-Type': CONTENT_TYPE.JSON })
+  response.status(resp.code).send(resp)
+}
+
+// Update user
+export const putUserUpdate = async (request: Request, response: Response) => {
+  const { params, body } = request
+  const resp = await controllerUserUpdate(params.id, body)
   response.set({ 'Content-Type': CONTENT_TYPE.JSON })
   response.status(resp.code).send(resp)
 }

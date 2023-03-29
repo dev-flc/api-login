@@ -7,10 +7,16 @@ import {
   HTTP_STATUS_CODES
 } from './../../utils/constants/constants'
 
+import { omit } from 'lodash'
+
 export const controllerAuthSignIn = async (body: DataAuth) => {
   try {
     const { email, password } = body
-    const user = await User.findOne({ email }).select(['-tokenConfirm'])
+    const user = await User.findOne({ email }).select([
+      '-tokenConfirm',
+      '-createdAt',
+      '-updatedAt'
+    ])
     if (!user) {
       throw new Error('Usuario no registrado')
     }
@@ -21,11 +27,11 @@ export const controllerAuthSignIn = async (body: DataAuth) => {
     if (!isPasswordMatch) {
       throw new Error('Contraseña incorrecta')
     }
-    user.password = '' // PENDIENTE REVISAR
     const token = await generateAccessToken(
       { ...user },
       JWT_VALID_TIME.EXPIRE_JWT_SESSION
     )
+    user.password = ''
     const { code, name } = HTTP_STATUS_CODES.OK
     const data = { token, user }
     return { code, data, message: name }
@@ -51,7 +57,6 @@ export const controllerConfirmAccount = async (tokenConfirm: string) => {
       throw new Error('Token inválido')
     }
     verifyAccessToken(decode64(tokenConfirm))
-    user.tokenConfirm = undefined
     user.confirmAccount = true
     await user.save()
 

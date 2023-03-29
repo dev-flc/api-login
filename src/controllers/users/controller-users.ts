@@ -63,3 +63,21 @@ export const controllerUserDelete = async (id: string) => {
     return validationMongoErrors(error)
   }
 }
+
+export const controllerUserUpdate = async (id: string, body: Usuario) => {
+  try {
+    if (!id) {
+      throw new Error('Entrada inválida: id debe ser una cadena no vacía')
+    }
+    const dataUpdateUser = await User.findByIdAndUpdate(id, body, {
+      new: true
+    }).select(['-password', '-tokenConfirm', '-createdAt', '-updatedAt'])
+    if (!dataUpdateUser) {
+      throw new Error('Entrada inválida: usuario no valido')
+    }
+    const { code, name } = HTTP_STATUS_CODES.OK
+    return { code, message: name, data: dataUpdateUser }
+  } catch (error) {
+    return validationMongoErrors(error)
+  }
+}

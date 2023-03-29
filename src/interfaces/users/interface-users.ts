@@ -4,7 +4,7 @@ export interface Usuario extends Document {
   confirmAccount: boolean
   email: string
   personalInformation: PersonalInformation
-  tokenConfirm: undefined
+  tokenConfirm: string
   userName: string
   _id: string
   comparePassword(candidatePassword: string): boolean
