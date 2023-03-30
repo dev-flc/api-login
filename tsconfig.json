@@ -4,6 +4,7 @@
     "module": "commonjs",
     "strict": true,
     "esModuleInterop": true,
+    "removeComments": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
