@@ -12,7 +12,7 @@ export const APPLY_AUTH = {
 }
 
 export const JWT_VALID_TIME = {
-  EXPIRE_JWT_CONFIRM_ACCOUNT: '24h',
+  EXPIRE_JWT_CONFIRM_ACCOUNT: '2m',
   EXPIRE_JWT_SESSION: '24h'
 }
 

@@ -35,5 +35,9 @@ export const getVerifyAccount = async (
   if (resp.code === 200) {
     return response.status(resp.code).send(SUCCESSFUL_VERIFY)
   }
-  return response.send(ERROR_VERIFY)
+  if (resp.code === 401) {
+    return response.send(ERROR_VERIFY('Token no valido'))
+  }
+
+  return response.send(ERROR_VERIFY('Error al verificar la cuenta'))
 }

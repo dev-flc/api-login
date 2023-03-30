@@ -72,21 +72,26 @@ export const controllerVerifyAccount = async (tokenConfirm: string) => {
         'Entrada inválida: tokenConfirm debe ser una cadena no vacía'
       )
     }
+
+    await verifyAccessToken(decode64(tokenConfirm))
+
     const user = await User.findOne({ tokenConfirm }).select([
       '-password',
       '-tokenConfirm',
       '-createdAt',
       '-updatedAt'
     ])
+
     if (!user) {
-      throw new Error('Token inválido')
+      throw new Error()
     }
-    verifyAccessToken(decode64(tokenConfirm))
+
     user.confirmAccount = true
     user.tokenConfirm = null
+
     await user.save()
     const { code } = HTTP_STATUS_CODES.OK
-    return { code, user }
+    return { code }
   } catch (error) {
     return validationMongoErrors(error)
   }
