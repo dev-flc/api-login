@@ -38,26 +38,39 @@ export const controllerAuthSignIn = async (body: DataAuth) => {
   }
 }
 
-export const controllerConfirmAccount = async (tokenConfirm: string) => {
+export const controllerConfirmAccount = async (idUser: string) => {
   try {
-    if (!tokenConfirm || typeof tokenConfirm !== 'string') {
-      throw new Error(
-        'Entrada inválida: tokenConfirm debe ser una cadena no vacía'
-      )
-    }
-    const user = await User.findOne({ tokenConfirm }).select([
+    const user = await User.findById(idUser).select([
       '-password',
-      '-tokenConfirm',
       '-createdAt',
       '-updatedAt'
     ])
+
     if (!user) {
-      throw new Error('Token inválido')
+      throw {
+        message: 'Datos de confirmación no validos',
+        name: 'Custom',
+        nameError: 'DataUnprocessable',
+        code: HTTP_STATUS_CODES.CONFLICT.code
+      }
     }
-    verifyAccessToken(decode64(tokenConfirm))
+
+    if (user.confirmAccount) {
+      throw {
+        message: 'Cuenta ya confirmada',
+        name: 'Custom',
+        nameError: 'AccountVerify',
+        code: HTTP_STATUS_CODES.OK.code
+      }
+    }
+
+    await verifyAccessToken(user.tokenConfirm || '')
+
     user.confirmAccount = true
     user.tokenConfirm = null
+
     await user.save()
+
     const { code, name } = HTTP_STATUS_CODES.OK
     return { code, message: name, user }
   } catch (error) {
@@ -65,33 +78,36 @@ export const controllerConfirmAccount = async (tokenConfirm: string) => {
   }
 }
 
-export const controllerVerifyAccount = async (tokenConfirm: string) => {
+export const controllerVerifyAccount = async (idUser: string) => {
   try {
-    if (!tokenConfirm || typeof tokenConfirm !== 'string') {
-      throw new Error(
-        'Entrada inválida: tokenConfirm debe ser una cadena no vacía'
-      )
-    }
-
-    await verifyAccessToken(decode64(tokenConfirm))
-
-    const user = await User.findOne({ tokenConfirm }).select([
-      '-password',
-      '-tokenConfirm',
-      '-createdAt',
-      '-updatedAt'
-    ])
+    const user = await User.findById(idUser)
 
     if (!user) {
-      throw new Error()
+      throw {
+        message: 'Datos de confirmación no validos',
+        name: 'Custom',
+        nameError: 'DataUnprocessable',
+        code: HTTP_STATUS_CODES.CONFLICT.code
+      }
     }
+
+    if (user.confirmAccount) {
+      throw {
+        message: 'Cuenta ya confirmada',
+        name: 'Custom',
+        nameError: 'AccountVerify',
+        code: HTTP_STATUS_CODES.OK.code
+      }
+    }
+
+    await verifyAccessToken(user.tokenConfirm || '')
 
     user.confirmAccount = true
     user.tokenConfirm = null
 
     await user.save()
-    const { code } = HTTP_STATUS_CODES.OK
-    return { code }
+    const { code, name } = HTTP_STATUS_CODES.OK
+    return { code, message: 'Cuenta verificada correctamente', nameError: name }
   } catch (error) {
     return validationMongoErrors(error)
   }

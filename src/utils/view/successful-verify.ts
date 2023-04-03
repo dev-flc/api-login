@@ -1,4 +1,4 @@
-export const SUCCESSFUL_VERIFY = `
+export const SUCCESSFUL_VERIFY = (message: string) => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -177,7 +177,7 @@ export const SUCCESSFUL_VERIFY = `
 				<div class="icon-fix"></div>
 			</div>
 		</div>
-		<p>Cuenta verificada correctamente</p>
+		<p>${message}</p>
 	</div>
 </body>
 </html>

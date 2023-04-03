@@ -4,9 +4,11 @@ import {
   JWT_VALID_TIME
 } from '../../utils/constants/constants'
 import { Usuario } from './../../interfaces/users/interface-users'
-import { validationMongoErrors, encode64 } from './../../utils/utils'
+import { validationMongoErrors } from './../../utils/utils'
 import { generateAccessToken } from './../../utils/jwt'
 import { sendMail } from './../../utils/send-mail'
+import { v4 as uuidv4 } from 'uuid'
+import * as CryptoJS from 'crypto-js'
 
 export const controllerUserList = async () => {
   try {
@@ -30,26 +32,28 @@ export const controllerUserList = async () => {
 export const controllerUserRegister = async (body: Usuario) => {
   try {
     const { email, userName } = body
-    const token = await generateAccessToken(
+    const jwt = await generateAccessToken(
       { email, userName },
       JWT_VALID_TIME.EXPIRE_JWT_CONFIRM_ACCOUNT
     )
-    const encodedToken = encode64(token)
+    const cript_email = `${uuidv4()}-${CryptoJS.HmacSHA1(email, 'example')}`
+    body._id = cript_email
     const infUser = await new User({
       ...body,
-      tokenConfirm: encodedToken
+      tokenConfirm: jwt
     }).save()
+
     const { code, name } = HTTP_STATUS_CODES.OK
     const { _id, confirmAccount, personalInformation } = infUser
     const { firstName, lastName, name: personalName } = personalInformation
-    sendMail(email, `${personalName} ${lastName} ${firstName}`, encodedToken)
+    sendMail(email, `${personalName} ${lastName} ${firstName}`, cript_email)
     const data = {
       _id,
       confirmAccount,
       email,
       personalInformation,
       userName,
-      tokenConfirm: encodedToken
+      tokenConfirm: jwt
     }
     return { code, data, message: name }
   } catch (error) {

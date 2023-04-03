@@ -4,6 +4,9 @@ import bcrypt from 'bcrypt'
 
 const schemeUser = new Schema<Usuario>(
   {
+    _id: {
+      type: String
+    },
     confirmAccount: {
       default: false,
       type: Boolean

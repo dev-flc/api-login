@@ -49,9 +49,15 @@ export const validationMongoErrors = async (error: any) => {
       break
     }
     case 'TokenExpiredError': {
-      result.message = error.message
+      result.message = 'Datos de confirmación expirados'
       result.code = HTTP_STATUS_CODES.UNAUTHORIZED.code
-      result.nameError = HTTP_STATUS_CODES.UNAUTHORIZED.name
+      result.nameError = error.name
+      break
+    }
+    case 'Custom': {
+      result.message = error.message
+      result.code = error.code
+      result.nameError = error.nameError
       break
     }
     default:

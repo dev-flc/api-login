@@ -12,12 +12,12 @@ export const APPLY_AUTH = {
 }
 
 export const JWT_VALID_TIME = {
-  EXPIRE_JWT_CONFIRM_ACCOUNT: '2m',
+  EXPIRE_JWT_CONFIRM_ACCOUNT: '24h',
   EXPIRE_JWT_SESSION: '24h'
 }
 
 export const HTTP_STATUS_CODES = {
-  OK: { code: 200, name: 'ok' },
+  OK: { code: 200, name: 'Ok' },
   BAD_REQUEST: { code: 400, name: 'Bad Request' },
   UNAUTHORIZED: { code: 401, name: 'Unauthorized' },
   FORBIDDEN: { code: 403, name: 'Forbidden' },
