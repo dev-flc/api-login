@@ -10,6 +10,7 @@ import {
   postSignIn,
   getConfirmAccount,
   getVerifyAccount
+  //getVerifyAccountExample
 } from './../services/auth/service-auth'
 const router = express.Router()
 

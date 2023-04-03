@@ -31,13 +31,28 @@ export const getVerifyAccount = async (
   response: Response
 ) => {
   const { token } = request.params
-  const resp = await controllerVerifyAccount(token)
-  if (resp.code === 200) {
-    return response.status(resp.code).send(SUCCESSFUL_VERIFY)
-  }
-  if (resp.code === 401) {
-    return response.send(ERROR_VERIFY('Token no valido'))
+  const data = await controllerVerifyAccount(token)
+  const { code, message, nameError } = data
+  let result
+
+  switch (nameError) {
+    case 'DataUnprocessable': {
+      result = response.status(code).send(ERROR_VERIFY(message))
+      break
+    }
+
+    case 'TokenExpiredError': {
+      result = response.status(code).send(ERROR_VERIFY(message))
+      break
+    }
+
+    case 'AccountVerify':
+    case 'Ok': {
+      result = response.status(code).send(SUCCESSFUL_VERIFY(message))
+      break
+    }
+    default:
   }
 
-  return response.send(ERROR_VERIFY('Error al verificar la cuenta'))
+  return result
 }

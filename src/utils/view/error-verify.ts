@@ -1,5 +1,4 @@
-export const ERROR_VERIFY = (message: string) => {
-  return `<!DOCTYPE html>
+export const ERROR_VERIFY = (message: string) => `<!DOCTYPE html>
 	<html lang="en">
 	<head>
 		<meta charset="UTF-8">
@@ -119,4 +118,3 @@ export const ERROR_VERIFY = (message: string) => {
 	</body>
 	</html>
 `
-}
