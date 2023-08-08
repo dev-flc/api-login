@@ -1,6 +1,6 @@
 import { User } from './../../models/users/model-users'
 import { DataAuth } from './../../interfaces/auth/interface-ahut'
-import { validationMongoErrors, decode64 } from './../../utils/utils'
+import { validationMongoErrors } from './../../utils/utils'
 import { generateAccessToken, verifyAccessToken } from './../../utils/jwt'
 import {
   JWT_VALID_TIME,
@@ -45,7 +45,6 @@ export const controllerConfirmAccount = async (idUser: string) => {
       '-createdAt',
       '-updatedAt'
     ])
-
     if (!user) {
       throw {
         message: 'Datos de confirmación no validos',

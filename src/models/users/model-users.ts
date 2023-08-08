@@ -61,8 +61,23 @@ const schemeUser = new Schema<Usuario>(
 schemeUser.pre('save', async function (next) {
   if (!this.isModified('password')) return next()
   const salt = await bcrypt.genSalt(10)
-  const hash = await bcrypt.hash(this.password, salt)
-  this.password = hash
+  const passwordHash = await bcrypt.hash(this.password, salt)
+  this.password = passwordHash
+  next()
+})
+
+schemeUser.pre('findOneAndUpdate', async function (next) {
+  const user = this.getUpdate() as { password: string }
+  if (user.password) {
+    const salt = await bcrypt.genSalt(10)
+    const passwordHash = await bcrypt.hash(user.password, salt)
+    this.setUpdate({
+      $set: {
+        password: passwordHash,
+        confirmpw: undefined
+      }
+    })
+  }
   next()
 })
 

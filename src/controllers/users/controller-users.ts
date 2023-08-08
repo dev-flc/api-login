@@ -14,14 +14,16 @@ export const controllerUserList = async () => {
   try {
     const userList = await User.find().select([
       '-password',
-      //'-tokenConfirm',
+      '-tokenConfirm',
       '-createdAt',
       '-updatedAt'
     ])
+
     const data = userList.reduce(
       (obj, usuario: Usuario) => ({ ...obj, [usuario._id]: usuario }),
       {}
     )
+
     const { code, name } = HTTP_STATUS_CODES.OK
     return { code, data, message: name }
   } catch (error) {
@@ -82,14 +84,17 @@ export const controllerUserUpdate = async (id: string, body: Usuario) => {
     if (!id) {
       throw new Error('Entrada inválida: id debe ser una cadena no vacía')
     }
-    const dataUpdateUser = await User.findByIdAndUpdate(id, body, {
+
+    const user = await User.findByIdAndUpdate(id, body, {
       new: true
-    }).select(['-password', '-tokenConfirm', '-createdAt', '-updatedAt'])
-    if (!dataUpdateUser) {
+    }).select(['-tokenConfirm', '-createdAt', '-updatedAt']) // '-password'
+
+    if (!user) {
       throw new Error('Entrada inválida: usuario no valido')
     }
+
     const { code, name } = HTTP_STATUS_CODES.OK
-    return { code, message: name, data: dataUpdateUser }
+    return { code, message: name, data: user }
   } catch (error) {
     return validationMongoErrors(error)
   }
