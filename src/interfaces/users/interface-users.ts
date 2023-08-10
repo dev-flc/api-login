@@ -16,3 +16,10 @@ interface PersonalInformation {
   lastName: string
   name: string
 }
+
+export interface UsuarioJWT {
+  email: string
+  personalInformation: PersonalInformation
+  userName: string
+  _id: string
+}

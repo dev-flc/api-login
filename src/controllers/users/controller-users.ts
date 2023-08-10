@@ -1,11 +1,8 @@
 import { User } from './../../models/users/model-users'
-import {
-  HTTP_STATUS_CODES,
-  JWT_VALID_TIME
-} from '../../utils/constants/constants'
+import { HTTP_STATUS_CODES } from '../../utils/constants/constants'
 import { Usuario } from './../../interfaces/users/interface-users'
 import { validationMongoErrors } from './../../utils/utils'
-import { generateAccessToken } from './../../utils/jwt'
+import { generateAccessTokenRegister } from './../../utils/jwt'
 import { sendMail } from './../../utils/send-mail'
 import { v4 as uuidv4 } from 'uuid'
 import * as CryptoJS from 'crypto-js'
@@ -24,8 +21,8 @@ export const controllerUserList = async () => {
       {}
     )
 
-    const { code, name } = HTTP_STATUS_CODES.OK
-    return { code, data, message: name }
+    const { code } = HTTP_STATUS_CODES.OK
+    return { code, data }
   } catch (error) {
     return validationMongoErrors(error)
   }
@@ -34,30 +31,35 @@ export const controllerUserList = async () => {
 export const controllerUserRegister = async (body: Usuario) => {
   try {
     const { email, userName } = body
-    const jwt = await generateAccessToken(
-      { email, userName },
-      JWT_VALID_TIME.EXPIRE_JWT_CONFIRM_ACCOUNT
-    )
-    const cript_email = `${uuidv4()}-${CryptoJS.HmacSHA1(email, 'example')}`
+
+    const jwt = await generateAccessTokenRegister({ email, userName })
+
+    const cript_email = `${uuidv4()}-${CryptoJS.HmacSHA1(
+      email,
+      process.env.CRYPT_JS_SECRET || ''
+    )}`
+
     body._id = cript_email
+
     const infUser = await new User({
       ...body,
       tokenConfirm: jwt
     }).save()
 
-    const { code, name } = HTTP_STATUS_CODES.OK
-    const { _id, confirmAccount, personalInformation } = infUser
+    const { code } = HTTP_STATUS_CODES.OK
+    const { _id, personalInformation } = infUser
     const { firstName, lastName, name: personalName } = personalInformation
+
     sendMail(email, `${personalName} ${lastName} ${firstName}`, cript_email)
+
     const data = {
       _id,
-      confirmAccount,
       email,
       personalInformation,
-      userName,
-      tokenConfirm: jwt
+      userName
     }
-    return { code, data, message: name }
+
+    return { code, data }
   } catch (error) {
     return validationMongoErrors(error)
   }
@@ -72,8 +74,8 @@ export const controllerUserDelete = async (id: string) => {
     if (!user) {
       throw new Error('Entrada inválida: usuario no valido')
     }
-    const { code, name } = HTTP_STATUS_CODES.OK
-    return { code, message: name }
+    const { code } = HTTP_STATUS_CODES.OK
+    return { code }
   } catch (error) {
     return validationMongoErrors(error)
   }
@@ -93,8 +95,16 @@ export const controllerUserUpdate = async (id: string, body: Usuario) => {
       throw new Error('Entrada inválida: usuario no valido')
     }
 
-    const { code, name } = HTTP_STATUS_CODES.OK
-    return { code, message: name, data: user }
+    const { code } = HTTP_STATUS_CODES.OK
+    const { _id, personalInformation, email, userName } = user
+    const data = {
+      _id,
+      email,
+      personalInformation,
+      userName
+    }
+
+    return { code, data }
   } catch (error) {
     return validationMongoErrors(error)
   }

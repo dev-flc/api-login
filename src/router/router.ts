@@ -25,4 +25,5 @@ router
   .post('/api/user/register', postUserRegister)
   .delete('/api/user/delete/:id', AUTH, deleteUserDelete)
   .put('/api/user/update/:id', AUTH, putUserUpdate)
+
 export { router }
