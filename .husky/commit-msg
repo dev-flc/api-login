@@ -1,9 +1,4 @@
-
 #!/bin/sh
-#. "$(dirname "$0")/_/husky.sh"
-
-#npx --no -- commitlint --edit ${1}
-
 echo $(dirname "$0")
 . "$(dirname "$0")/_/husky.sh"
 

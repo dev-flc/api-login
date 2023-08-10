@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose'
-import { Usuario } from 'src/interfaces/users/interface-users'
+import { Usuario } from './../../interfaces/users/interface-users'
 import bcrypt from 'bcrypt'
 
 const schemeUser = new Schema<Usuario>(
@@ -71,11 +71,9 @@ schemeUser.pre('findOneAndUpdate', async function (next) {
   if (user.password) {
     const salt = await bcrypt.genSalt(10)
     const passwordHash = await bcrypt.hash(user.password, salt)
+    user.password = passwordHash
     this.setUpdate({
-      $set: {
-        password: passwordHash,
-        confirmpw: undefined
-      }
+      $set: { ...user, confirmpw: undefined }
     })
   }
   next()
