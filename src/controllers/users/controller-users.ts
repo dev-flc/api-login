@@ -1,23 +1,22 @@
+import * as CryptoJS from 'crypto-js'
+import { encryptText } from '../../utils/functions'
+import { firestore } from '../../utils/database/connect-firebase'
+import { generateAccessTokenRegister } from '../../utils/jwt'
 import { HTTP_STATUS_CODES } from '../../utils/constants/constants'
 import { interfaceUsers } from '../../interfaces/users/interface-users'
-import { validationMongoErrors } from '../../utils/utils'
-import { generateAccessTokenRegister } from '../../utils/jwt'
 import { sendMail } from '../../utils/send-mail'
-import { encryptText } from '../../utils/functions'
 import { v4 as uuidv4 } from 'uuid'
-import * as CryptoJS from 'crypto-js'
-
-import { firestore } from '../../utils/database/connect-firebase'
+import { validationMongoErrors } from '../../utils/utils'
 import {
   collection,
-  getDocs,
-  where,
-  query,
-  updateDoc,
   deleteDoc,
   doc,
   getDoc,
-  setDoc
+  getDocs,
+  query,
+  setDoc,
+  updateDoc,
+  where
 } from 'firebase/firestore'
 
 export const controllerUserList = async () => {
@@ -59,17 +58,17 @@ export const controllerUserRegister = async (data: interfaceUsers) => {
     }
 
     const jwt = await generateAccessTokenRegister({ email, userName })
-    const id_custom = `${uuidv4()}-${CryptoJS.HmacSHA1(
+    const idCustom = `${uuidv4()}-${CryptoJS.HmacSHA1(
       email,
       process.env.CRYPT_JS_SECRET || ''
     )}`
 
-    const docRef = doc(collectionRef, id_custom)
+    const docRef = doc(collectionRef, idCustom)
     if (password) {
       data.password = await encryptText(password)
     }
 
-    data = { ...data, tokenConfirm: jwt, id: id_custom, confirmAccount: false }
+    data = { ...data, confirmAccount: false, id: idCustom, tokenConfirm: jwt }
 
     await setDoc(docRef, data)
 
@@ -79,7 +78,7 @@ export const controllerUserRegister = async (data: interfaceUsers) => {
 
     // Envio de correo
     const { firstName, lastName, name: personalName } = personalInformation
-    sendMail(email, `${personalName} ${lastName} ${firstName}`, id_custom)
+    sendMail(email, `${personalName} ${lastName} ${firstName}`, idCustom)
 
     return { code: HTTP_STATUS_CODES.OK.code, data }
   } catch (error) {

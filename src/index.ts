@@ -1,5 +1,4 @@
 import express from 'express'
-import { firestore } from './utils/database/connect-firebase'
 
 import { router } from './router/router'
 
@@ -19,6 +18,5 @@ APP.get('*', (request, response) => {
 })
 
 APP.listen(NEW_PORT, async () => {
-  firestore
   console.log(`Server successfull: http://localhost:${NEW_PORT}`)
 })

@@ -1,9 +1,9 @@
-import { Request, Response } from 'express'
+import { CONTENT_TYPE } from './../../utils/constants/constants'
 import {
   controllerAuthSignIn,
   controllerConfirmAccount
 } from '../../controllers/auth/controller-auth'
-import { CONTENT_TYPE } from './../../utils/constants/constants'
+import { Request, Response } from 'express'
 
 // List users
 export const postSignIn = async (request: Request, response: Response) => {

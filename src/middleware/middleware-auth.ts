@@ -1,7 +1,10 @@
-import { Request, Response, NextFunction } from 'express'
-import { HTTP_STATUS_CODES, APPLY_AUTH } from './../utils/constants/constants'
 import { verifyAccessToken } from './../utils/jwt'
-import { CONTENT_TYPE } from './../utils/constants/constants'
+import {
+  APPLY_AUTH,
+  CONTENT_TYPE,
+  HTTP_STATUS_CODES
+} from './../utils/constants/constants'
+import { NextFunction, Request, Response } from 'express'
 
 export const AUTH = (req: Request, response: Response, next: NextFunction) => {
   if (process.env.APPLY_AUTH === APPLY_AUTH.ON) {
