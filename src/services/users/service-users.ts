@@ -4,7 +4,7 @@ import {
   controllerUserRegister,
   controllerUserDelete,
   controllerUserUpdate
-} from '../../controllers/users/controller-users-f'
+} from '../../controllers/users/controller-users'
 import { CONTENT_TYPE } from './../../utils/constants/constants'
 
 // List users
