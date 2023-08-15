@@ -1,5 +1,6 @@
 import express from 'express'
-import { connectDB } from './utils/database/connect-db'
+import { firestore } from './utils/database/connect-firebase'
+
 import { router } from './router/router'
 
 import dotenv from 'dotenv'
@@ -18,6 +19,6 @@ APP.get('*', (request, response) => {
 })
 
 APP.listen(NEW_PORT, async () => {
-  connectDB()
+  firestore
   console.log(`Server successfull: http://localhost:${NEW_PORT}`)
 })

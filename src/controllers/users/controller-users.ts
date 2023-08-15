@@ -1,65 +1,87 @@
-import { User } from './../../models/users/model-users'
 import { HTTP_STATUS_CODES } from '../../utils/constants/constants'
-import { Usuario } from './../../interfaces/users/interface-users'
-import { validationMongoErrors } from './../../utils/utils'
-import { generateAccessTokenRegister } from './../../utils/jwt'
-import { sendMail } from './../../utils/send-mail'
+import { interfaceUsers } from '../../interfaces/users/interface-users'
+import { validationMongoErrors } from '../../utils/utils'
+import { generateAccessTokenRegister } from '../../utils/jwt'
+import { sendMail } from '../../utils/send-mail'
+import { encryptText } from '../../utils/functions'
 import { v4 as uuidv4 } from 'uuid'
 import * as CryptoJS from 'crypto-js'
 
+import { firestore } from '../../utils/database/connect-firebase'
+import {
+  collection,
+  getDocs,
+  where,
+  query,
+  updateDoc,
+  deleteDoc,
+  doc,
+  getDoc,
+  setDoc
+} from 'firebase/firestore'
+
 export const controllerUserList = async () => {
   try {
-    const userList = await User.find().select([
-      '-password',
-      '-tokenConfirm',
-      '-createdAt',
-      '-updatedAt'
-    ])
+    const collectionRef = collection(firestore, 'users')
+    const collectionQuery = query(collectionRef)
+    const querySnapshotUser = await getDocs(collectionQuery)
+    const data: { [id: string]: any } = {}
 
-    const data = userList.reduce(
-      (obj, usuario: Usuario) => ({ ...obj, [usuario._id]: usuario }),
-      {}
-    )
+    querySnapshotUser.docs.forEach(doc => {
+      const userData = doc.data()
+      delete userData.password
+      delete userData.tokenConfirm
+      data[doc.id] = userData
+    })
 
-    const { code } = HTTP_STATUS_CODES.OK
-    return { code, data }
+    return { code: HTTP_STATUS_CODES.OK.code, data }
   } catch (error) {
     return validationMongoErrors(error)
   }
 }
 
-export const controllerUserRegister = async (body: Usuario) => {
+export const controllerUserRegister = async (data: interfaceUsers) => {
   try {
-    const { email, userName } = body
+    const { email, userName, password, personalInformation } = data
+    const collectionRef = collection(firestore, 'users')
+    const emailQuerySnapshot = await getDocs(
+      query(collectionRef, where('email', '==', email))
+    )
+
+    if (!emailQuerySnapshot.empty) {
+      throw new Error('El email ya está registrado.')
+    }
+    const userNameQuerySnapshot = await getDocs(
+      query(collectionRef, where('userName', '==', userName))
+    )
+    if (!userNameQuerySnapshot.empty) {
+      throw new Error('El userName ya está registrado.')
+    }
 
     const jwt = await generateAccessTokenRegister({ email, userName })
-
-    const cript_email = `${uuidv4()}-${CryptoJS.HmacSHA1(
+    const id_custom = `${uuidv4()}-${CryptoJS.HmacSHA1(
       email,
       process.env.CRYPT_JS_SECRET || ''
     )}`
 
-    body._id = cript_email
-
-    const infUser = await new User({
-      ...body,
-      tokenConfirm: jwt
-    }).save()
-
-    const { code } = HTTP_STATUS_CODES.OK
-    const { _id, personalInformation } = infUser
-    const { firstName, lastName, name: personalName } = personalInformation
-
-    sendMail(email, `${personalName} ${lastName} ${firstName}`, cript_email)
-
-    const data = {
-      _id,
-      email,
-      personalInformation,
-      userName
+    const docRef = doc(collectionRef, id_custom)
+    if (password) {
+      data.password = await encryptText(password)
     }
 
-    return { code, data }
+    data = { ...data, tokenConfirm: jwt, id: id_custom, confirmAccount: false }
+
+    await setDoc(docRef, data)
+
+    delete data.password
+    delete data.tokenConfirm
+    delete data.confirmAccount
+
+    // Envio de correo
+    const { firstName, lastName, name: personalName } = personalInformation
+    sendMail(email, `${personalName} ${lastName} ${firstName}`, id_custom)
+
+    return { code: HTTP_STATUS_CODES.OK.code, data }
   } catch (error) {
     return validationMongoErrors(error)
   }
@@ -67,44 +89,49 @@ export const controllerUserRegister = async (body: Usuario) => {
 
 export const controllerUserDelete = async (id: string) => {
   try {
-    if (!id) {
-      throw new Error('Entrada inválida: id debe ser una cadena no vacía')
+    const docRefUser = await doc(firestore, 'users', id)
+    const docSnapshotUser = await getDoc(docRefUser)
+
+    if (!docSnapshotUser.exists()) {
+      throw new Error(`El usuario con ID ${id} no existe.`)
     }
-    const user = await User.findByIdAndDelete(id)
-    if (!user) {
-      throw new Error('Entrada inválida: usuario no valido')
-    }
-    const { code } = HTTP_STATUS_CODES.OK
-    return { code }
+
+    await deleteDoc(docRefUser)
+
+    return { code: HTTP_STATUS_CODES.OK.code }
   } catch (error) {
     return validationMongoErrors(error)
   }
 }
 
-export const controllerUserUpdate = async (id: string, body: Usuario) => {
+export const controllerUserUpdate = async (
+  id: string,
+  data: interfaceUsers
+) => {
   try {
-    if (!id) {
-      throw new Error('Entrada inválida: id debe ser una cadena no vacía')
+    const docRefUser = doc(firestore, 'users', id)
+    const docSnapshotUser = await getDoc(docRefUser)
+
+    if (!docSnapshotUser.exists()) {
+      throw new Error(`El usuario con ID ${id} no existe.`)
     }
 
-    const user = await User.findByIdAndUpdate(id, body, {
-      new: true
-    }).select(['-tokenConfirm', '-createdAt', '-updatedAt']) // '-password'
-
-    if (!user) {
-      throw new Error('Entrada inválida: usuario no valido')
+    if (data.password) {
+      data.password = await encryptText(data.password)
     }
 
-    const { code } = HTTP_STATUS_CODES.OK
-    const { _id, personalInformation, email, userName } = user
-    const data = {
-      _id,
-      email,
-      personalInformation,
-      userName
+    await updateDoc(docRefUser, { ...data })
+
+    const newDocSanapShotUser = await getDoc(docRefUser)
+    const newData = newDocSanapShotUser.data()
+
+    if (newData) {
+      delete newData.password
+      delete newData.tokenConfirm
+      delete newData.confirmAccount
     }
 
-    return { code, data }
+    return { code: HTTP_STATUS_CODES.OK.code, newData }
   } catch (error) {
     return validationMongoErrors(error)
   }
