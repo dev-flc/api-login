@@ -8,13 +8,13 @@ export const sendMail = async (
 ) => {
   const { GMAIL_PASS, GMAIL_USER, GMAIL_HOST, GMAIL_PORT } = process.env
   const transporter = nodemailer.createTransport({
-    host: GMAIL_HOST,
-    port: Number(GMAIL_PORT),
-    secure: true,
     auth: {
       pass: GMAIL_PASS,
       user: GMAIL_USER
-    }
+    },
+    host: GMAIL_HOST,
+    port: Number(GMAIL_PORT),
+    secure: true
   })
 
   const inf = await transporter.sendMail({

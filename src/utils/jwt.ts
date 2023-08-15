@@ -1,6 +1,6 @@
+import { DataAuthUser } from './../interfaces/auth/interface-ahut'
 import jwt from 'jsonwebtoken'
 import { UsuarioJWT } from './../interfaces/users/interface-users'
-import { DataAuthUser } from './../interfaces/auth/interface-ahut'
 
 export const verifyAccessToken = async (token: string) => {
   jwt.verify(token, process.env.JWT_SECRET || '')

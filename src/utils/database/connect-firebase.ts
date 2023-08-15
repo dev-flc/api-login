@@ -1,6 +1,6 @@
-import { initializeApp } from 'firebase/app'
-import { getFirestore } from 'firebase/firestore'
 import dotenv from 'dotenv'
+import { getFirestore } from 'firebase/firestore'
+import { initializeApp } from 'firebase/app'
 
 dotenv.config()
 
@@ -15,11 +15,11 @@ const {
 
 const firebaseConfig = {
   apiKey: API_KEY,
+  appId: APP_ID,
   authDomain: AUTH_DOMAIN,
-  projectId: PROJECT_ID,
-  storageBucket: STORAGE_BUCKET,
   messagingSenderId: MESSAGING_SENDER_ID,
-  appId: APP_ID
+  projectId: PROJECT_ID,
+  storageBucket: STORAGE_BUCKET
 }
 
 // Inicializa Firebase

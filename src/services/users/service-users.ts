@@ -1,11 +1,11 @@
-import { Request, Response } from 'express'
+import { CONTENT_TYPE } from './../../utils/constants/constants'
 import {
+  controllerUserDelete,
   controllerUserList,
   controllerUserRegister,
-  controllerUserDelete,
   controllerUserUpdate
 } from '../../controllers/users/controller-users'
-import { CONTENT_TYPE } from './../../utils/constants/constants'
+import { Request, Response } from 'express'
 
 // List users
 export const getUserList = async (request: Request, response: Response) => {

@@ -1,12 +1,12 @@
-import express from 'express'
 import { AUTH } from './../middleware/middleware-auth'
+import express from 'express'
 import {
+  deleteUserDelete,
   getUserList,
   postUserRegister,
-  deleteUserDelete,
   putUserUpdate
 } from './../services/users/service-users'
-import { postSignIn, getConfirmAccount } from './../services/auth/service-auth'
+import { getConfirmAccount, postSignIn } from './../services/auth/service-auth'
 const router = express.Router()
 
 router

@@ -12,12 +12,12 @@ export const APPLY_AUTH = {
 }
 
 export const HTTP_STATUS_CODES = {
-  OK: { code: 200, name: 'Ok' },
   BAD_REQUEST: { code: 400, name: 'Bad Request' },
-  UNAUTHORIZED: { code: 401, name: 'Unauthorized' },
+  CONFLICT: { code: 409, name: 'Conflict' },
   FORBIDDEN: { code: 403, name: 'Forbidden' },
-  NOT_FOUNT: { code: 404, name: 'Not Found' },
-  UNPROCESSABLE_ENTITY: { code: 422, name: 'Unprocessable Entity' },
   INTERNAL_SERVER_ERROR: { code: 500, name: 'Internal Server Error' },
-  CONFLICT: { code: 409, name: 'Conflict' }
+  NOT_FOUNT: { code: 404, name: 'Not Found' },
+  OK: { code: 200, name: 'Ok' },
+  UNAUTHORIZED: { code: 401, name: 'Unauthorized' },
+  UNPROCESSABLE_ENTITY: { code: 422, name: 'Unprocessable Entity' }
 }

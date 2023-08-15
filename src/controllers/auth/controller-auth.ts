@@ -1,18 +1,18 @@
+import { comparePassword } from '../../utils/functions'
 import { DataAuth } from '../../interfaces/auth/interface-ahut'
+import { firestore } from '../../utils/database/connect-firebase'
+import { HTTP_STATUS_CODES } from '../../utils/constants/constants'
 import { validationMongoErrors } from '../../utils/utils'
 import { generateAccessTokenAuth, verifyAccessToken } from '../../utils/jwt'
-import { comparePassword } from '../../utils/functions'
-import { HTTP_STATUS_CODES } from '../../utils/constants/constants'
 
-import { firestore } from '../../utils/database/connect-firebase'
 import {
   collection,
+  doc,
+  getDoc,
   getDocs,
-  where,
   query,
   updateDoc,
-  doc,
-  getDoc
+  where
 } from 'firebase/firestore'
 
 export const controllerAuthSignIn = async (body: DataAuth) => {
@@ -33,7 +33,7 @@ export const controllerAuthSignIn = async (body: DataAuth) => {
       firstDoc.data()
 
     if (!confirmAccount) {
-      throw new Error('La cuenta se encuentra verificada')
+      throw new Error('La cuenta no se encuentra verificada')
     }
 
     const isPasswordMatch = await comparePassword(candidatePassword, password)
@@ -44,9 +44,9 @@ export const controllerAuthSignIn = async (body: DataAuth) => {
 
     const token = await generateAccessTokenAuth({
       email,
-      userName,
       id,
-      personalInformation
+      personalInformation,
+      userName
     })
 
     return { code: HTTP_STATUS_CODES.OK.code, data: { token } }
@@ -61,22 +61,25 @@ export const controllerConfirmAccount = async (id: string) => {
     const docSnapshotUser = await getDoc(docRefUser)
 
     if (!docSnapshotUser.exists()) {
-      throw {
+      const errorMessage = {
+        code: HTTP_STATUS_CODES.CONFLICT.code,
         message: 'Datos de confirmación no validoss',
         name: 'Custom',
-        nameError: 'DataUnprocessable',
-        code: HTTP_STATUS_CODES.CONFLICT.code
+        nameError: 'DataUnprocessable'
       }
+      throw errorMessage
     }
     const data = docSnapshotUser.data()
 
     if (data.confirmAccount) {
-      throw {
+      const errorMessage = {
+        code: HTTP_STATUS_CODES.OK.code,
         message: 'Cuenta ya confirmada',
         name: 'Custom',
-        nameError: 'AccountVerify',
-        code: HTTP_STATUS_CODES.OK.code
+        nameError: 'AccountVerify'
       }
+
+      throw errorMessage
     }
 
     await verifyAccessToken(data.tokenConfirm)
