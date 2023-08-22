@@ -8,3 +8,4 @@ LICENCE
 node_modules/
 .eslintcache
 api/
+__test__

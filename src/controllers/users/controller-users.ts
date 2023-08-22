@@ -12,26 +12,19 @@ import {
   deleteDoc,
   doc,
   getDoc,
-  getDocs,
-  query,
   setDoc,
-  updateDoc,
-  where
+  updateDoc
 } from 'firebase/firestore'
+
+import {
+  consultFBCollectionAll,
+  consultFBCollectionQuery,
+  consultFBDocById
+} from './../../utils/functions-firestore'
 
 export const controllerUserList = async () => {
   try {
-    const collectionRef = collection(firestore, 'users')
-    const collectionQuery = query(collectionRef)
-    const querySnapshotUser = await getDocs(collectionQuery)
-    const data: { [id: string]: any } = {}
-
-    querySnapshotUser.docs.forEach(doc => {
-      const userData = doc.data()
-      delete userData.password
-      delete userData.tokenConfirm
-      data[doc.id] = userData
-    })
+    const data = await consultFBCollectionAll('users')
 
     return { code: HTTP_STATUS_CODES.OK.code, data }
   } catch (error) {
@@ -42,19 +35,22 @@ export const controllerUserList = async () => {
 export const controllerUserRegister = async (data: interfaceUsers) => {
   try {
     const { email, userName, password, personalInformation } = data
-    const collectionRef = collection(firestore, 'users')
-    const emailQuerySnapshot = await getDocs(
-      query(collectionRef, where('email', '==', email))
+    const emailQuerySnapshot = await consultFBCollectionQuery(
+      'users',
+      'email',
+      email
     )
-
     if (!emailQuerySnapshot.empty) {
       throw new Error('El email ya está registrado.')
     }
-    const userNameQuerySnapshot = await getDocs(
-      query(collectionRef, where('userName', '==', userName))
+
+    const userNameQuerySnapshot = await consultFBCollectionQuery(
+      'users',
+      'userName',
+      userName
     )
     if (!userNameQuerySnapshot.empty) {
-      throw new Error('El userName ya está registrado.')
+      throw new Error('El usuario ya está registrado.')
     }
 
     const jwt = await generateAccessTokenRegister({ email, userName })
@@ -62,8 +58,9 @@ export const controllerUserRegister = async (data: interfaceUsers) => {
       email,
       process.env.CRYPT_JS_SECRET || ''
     )}`
-
+    const collectionRef = collection(firestore, 'users')
     const docRef = doc(collectionRef, idCustom)
+
     if (password) {
       data.password = await encryptText(password)
     }
@@ -88,13 +85,13 @@ export const controllerUserRegister = async (data: interfaceUsers) => {
 
 export const controllerUserDelete = async (id: string) => {
   try {
-    const docRefUser = await doc(firestore, 'users', id)
-    const docSnapshotUser = await getDoc(docRefUser)
+    const docSnapshotUser = await consultFBDocById('users', id)
 
     if (!docSnapshotUser.exists()) {
       throw new Error(`El usuario con ID ${id} no existe.`)
     }
 
+    const docRefUser = await doc(firestore, 'users', id)
     await deleteDoc(docRefUser)
 
     return { code: HTTP_STATUS_CODES.OK.code }
@@ -109,7 +106,7 @@ export const controllerUserUpdate = async (
 ) => {
   try {
     const docRefUser = doc(firestore, 'users', id)
-    const docSnapshotUser = await getDoc(docRefUser)
+    const docSnapshotUser = await consultFBDocById('users', id)
 
     if (!docSnapshotUser.exists()) {
       throw new Error(`El usuario con ID ${id} no existe.`)
