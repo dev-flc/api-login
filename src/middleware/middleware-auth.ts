@@ -14,7 +14,7 @@ export const AUTH = (req: Request, response: Response, next: NextFunction) => {
 
     if (!token) {
       const { code, name } = HTTP_STATUS_CODES.FORBIDDEN
-      response.set({ 'Content-Type': CONTENT_TYPE.JSON })
+      // response.set({ 'Content-Type': CONTENT_TYPE.JSON })
       return response.status(code).send({
         code,
         message: 'Entrada inválida: token debe ser una cadena no vacía',
