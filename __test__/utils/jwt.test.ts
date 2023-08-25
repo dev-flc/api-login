@@ -1,11 +1,15 @@
-import { generateAccessTokenAuth, verifyAccessToken } from '../../src/utils/jwt'
+import {
+  generateAccessTokenAuth,
+  generateAccessTokenRegister,
+  verifyAccessToken
+} from '../../src/utils/jwt'
 
 describe('TEST JWT', () => {
-  test('generateAccessTokenAuth', async () => {
+  test('verifyAccessToken', async () => {
     const token =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZlci5sYy5kZXZlbG9wZXJAZ21haWwuY29tIiwiaWQiOiIwZDUwNjhlNS0yMjM5LTRhMWMtYTA3NS04Zjg3ODA4ZWZjNzItM2Q3MWQwMTEzZDM2YzhkMmFkMjE4NTc5MjVmYjNiMmU2Y2Y3Y2Y5MCIsInBlcnNvbmFsSW5mb3JtYXRpb24iOnsiZmlyc3ROYW1lIjoiTHVjZW5hIiwibGFzdE5hbWUiOiJDYWxpeHRvIiwibmFtZSI6IkZlcm5hbmRvIn0sInVzZXJOYW1lIjoiZmVybGMiLCJpYXQiOjE2OTI3NjU2NDJ9.1sMrLPe3fmaN3lixAMmq_EpgAdge2MnmGNtT8r5-yrk'
-
-    expect(typeof (await verifyAccessToken(token)) === 'object').toBe(true)
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZ21haWwuY29tIiwiaWQiOiJleGFtcGxlIiwicGVyc29uYWxJbmZvcm1hdGlvbiI6eyJmaXJzdE5hbWUiOiJleGFtcGxlIiwibGFzdE5hbWUiOiJleGFtcGxlIiwibmFtZSI6ImV4YW1wbGUifSwidXNlck5hbWUiOiJleGFtcGxlIiwiaWF0IjoxNjkyOTQ4ODgxfQ.VHRuDdfx4Qoid4VaXXEWWGeEf3RHFOEn6F5YyPnwngM'
+    const data = await verifyAccessToken(token)
+    expect(typeof data).toBe('object')
   })
 
   test('generateAccessTokenAuth', async () => {
@@ -20,6 +24,16 @@ describe('TEST JWT', () => {
       userName: 'example'
     }
     const tokens = generateAccessTokenAuth(data)
+    expect(tokens).toHaveProperty('refreshToken')
+    expect(tokens).toHaveProperty('token')
+  })
+
+  test('generateAccessTokenRegister', async () => {
+    const data = {
+      email: 'example@gmail.com',
+      userName: 'example'
+    }
+    const tokens = generateAccessTokenRegister(data)
     expect(tokens).toHaveProperty('refreshToken')
     expect(tokens).toHaveProperty('token')
   })

@@ -54,7 +54,10 @@ export const controllerUserRegister = async (data: interfaceUsers) => {
       throw new Error('El usuario ya está registrado.')
     }
 
-    const jwt = await generateAccessTokenRegister({ email, userName })
+    const { refreshToken } = await generateAccessTokenRegister({
+      email,
+      userName
+    })
     const idCustom = `${v4()}-${CryptoJS.HmacSHA1(
       email,
       process.env.CRYPT_JS_SECRET || ''
@@ -66,7 +69,12 @@ export const controllerUserRegister = async (data: interfaceUsers) => {
       data.password = await encryptText(password)
     }
 
-    data = { ...data, confirmAccount: false, id: idCustom, tokenConfirm: jwt }
+    data = {
+      ...data,
+      confirmAccount: false,
+      id: idCustom,
+      tokenConfirm: refreshToken
+    }
 
     await setDoc(docRef, data)
 

@@ -1,7 +1,5 @@
 import { DataAuthUser } from '../interfaces/auth/interface-auth'
-
 import jwt from 'jsonwebtoken'
-
 import { UsuarioJWT } from './../interfaces/users/interface-users'
 
 export const verifyAccessToken = async (token: string) => {
@@ -17,9 +15,11 @@ export const generateAccessTokenAuth = (data: UsuarioJWT) => {
   return { refreshToken, token }
 }
 
-export const generateAccessTokenRegister = async (data: DataAuthUser) => {
-  const { email, userName } = data
-  return jwt.sign({ email, userName }, process.env.JWT_SECRET || '', {
+export const generateAccessTokenRegister = (data: DataAuthUser) => {
+  const refreshToken = jwt.sign(data, process.env.JWT_SECRET || '', {
     expiresIn: process.env.EXPIRE_JWT_CONFIRM_ACCOUNT
   })
+  const token = jwt.sign(data, process.env.JWT_SECRET || '')
+
+  return { refreshToken, token }
 }
