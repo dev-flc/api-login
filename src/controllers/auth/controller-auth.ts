@@ -69,6 +69,7 @@ export const controllerConfirmAccount = async (id: string) => {
       }
       throw errorMessage
     }
+
     const data = docSnapshotUser.data()
 
     if (data.confirmAccount) {
@@ -78,7 +79,6 @@ export const controllerConfirmAccount = async (id: string) => {
         name: 'Custom',
         nameError: 'AccountVerify'
       }
-
       throw errorMessage
     }
 
