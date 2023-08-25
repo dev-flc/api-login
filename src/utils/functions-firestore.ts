@@ -1,4 +1,4 @@
-import { firestore } from './database/connect-firebase'
+import { connectDB } from './database/connect-firebase'
 import {
   collection,
   doc,
@@ -9,7 +9,7 @@ import {
 } from 'firebase/firestore'
 
 export const consultFBCollectionAll = async (nameCollection: string) => {
-  const collectionRef = collection(firestore, nameCollection)
+  const collectionRef = collection(connectDB, nameCollection)
   const collectionQuery = query(collectionRef)
   const querySnapshotUser = await getDocs(collectionQuery)
 
@@ -24,12 +24,12 @@ export const consultFBCollectionQuery = async (
   key: string,
   vale: string
 ) => {
-  const collectionRef = collection(firestore, nameCollection)
+  const collectionRef = collection(connectDB, nameCollection)
   const data = await getDocs(query(collectionRef, where(key, '==', vale)))
   return data
 }
 
 export const consultFBDocById = async (nameDoc: string, id: string) => {
-  const docRefUser = await doc(firestore, 'users', id)
+  const docRefUser = await doc(connectDB, 'users', id)
   return await getDoc(docRefUser)
 }

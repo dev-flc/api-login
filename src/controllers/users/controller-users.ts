@@ -1,11 +1,11 @@
 import * as CryptoJS from 'crypto-js'
+import { connectDB } from '../../utils/database/connect-firebase'
 import { encryptText } from '../../utils/functions'
-import { firestore } from '../../utils/database/connect-firebase'
 import { generateAccessTokenRegister } from '../../utils/jwt'
 import { HTTP_STATUS_CODES } from '../../utils/constants/constants'
 import { interfaceUsers } from '../../interfaces/users/interface-users'
 import { sendMail } from '../../utils/send-mail'
-import { v4 as uuidv4 } from 'uuid'
+import { v4 } from 'uuid'
 import { validationMongoErrors } from '../../utils/utils'
 import {
   collection,
@@ -49,16 +49,17 @@ export const controllerUserRegister = async (data: interfaceUsers) => {
       'userName',
       userName
     )
+
     if (!userNameQuerySnapshot.empty) {
       throw new Error('El usuario ya está registrado.')
     }
 
     const jwt = await generateAccessTokenRegister({ email, userName })
-    const idCustom = `${uuidv4()}-${CryptoJS.HmacSHA1(
+    const idCustom = `${v4()}-${CryptoJS.HmacSHA1(
       email,
       process.env.CRYPT_JS_SECRET || ''
     )}`
-    const collectionRef = collection(firestore, 'users')
+    const collectionRef = collection(connectDB, 'users')
     const docRef = doc(collectionRef, idCustom)
 
     if (password) {
@@ -73,7 +74,7 @@ export const controllerUserRegister = async (data: interfaceUsers) => {
     delete data.tokenConfirm
     delete data.confirmAccount
 
-    // Envio de correo
+    // Envío de correo
     const { firstName, lastName, name: personalName } = personalInformation
     sendMail(email, `${personalName} ${lastName} ${firstName}`, idCustom)
 
@@ -91,7 +92,7 @@ export const controllerUserDelete = async (id: string) => {
       throw new Error(`El usuario con ID ${id} no existe.`)
     }
 
-    const docRefUser = await doc(firestore, 'users', id)
+    const docRefUser = await doc(connectDB, 'users', id)
     await deleteDoc(docRefUser)
 
     return { code: HTTP_STATUS_CODES.OK.code }
@@ -105,7 +106,7 @@ export const controllerUserUpdate = async (
   data: interfaceUsers
 ) => {
   try {
-    const docRefUser = doc(firestore, 'users', id)
+    const docRefUser = doc(connectDB, 'users', id)
     const docSnapshotUser = await consultFBDocById('users', id)
 
     if (!docSnapshotUser.exists()) {
@@ -118,8 +119,8 @@ export const controllerUserUpdate = async (
 
     await updateDoc(docRefUser, { ...data })
 
-    const newDocSanapShotUser = await getDoc(docRefUser)
-    const newData = newDocSanapShotUser.data()
+    const newDocSnapShotUser = await getDoc(docRefUser)
+    const newData = newDocSnapShotUser.data()
 
     if (newData) {
       delete newData.password

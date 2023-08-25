@@ -1,9 +1,14 @@
-import { describe, expect, test } from '@jest/globals'
+import { comparePassword, encryptText } from '../../src/utils/functions'
 
-import { comparePassword } from '../../src/utils/functions'
+describe('TEST FUNCTION', () => {
+  test('comparePassword', async () => {
+    const examplePass =
+      '$2b$10$Hs20u.64zAI.b2J7sOYGZO67dmfgdZH7hmOeZkJEAlUn2vO68qq5W'
 
-describe('test comparePassword', () => {
-  test('compare Password', () => {
-    expect(comparePassword('example', 'example')).toBe(true)
+    expect(await comparePassword('forever', examplePass)).toBe(true)
+  })
+
+  test('encryptText', async () => {
+    expect(typeof (await encryptText('forever')) === 'string').toBe(true)
   })
 })

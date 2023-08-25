@@ -1,20 +1,6 @@
 import { HTTP_STATUS_CODES } from './constants/constants'
 
-export const encode64 = (str: string) => Buffer.from(str).toString('base64')
-
-export const decode64 = (str: string) =>
-  Buffer.from(str, 'base64').toString('ascii')
-
-const getKeyErrors = (error: any) => {
-  const message: { [key: string]: string } = {}
-  Object.keys(error.errors).forEach(key => {
-    message[key] = error.errors[key].message
-    message.key = key
-  })
-  return message
-}
-
-export const validationMongoErrors = async (error: any) => {
+export const validationMongoErrors = (error: any) => {
   const result = {
     code: HTTP_STATUS_CODES.BAD_REQUEST.code,
     message: HTTP_STATUS_CODES.BAD_REQUEST.name,
@@ -22,25 +8,6 @@ export const validationMongoErrors = async (error: any) => {
   }
 
   switch (error.name) {
-    case 'ValidationError': {
-      const message = getKeyErrors(error)
-      result.message = message[message.key]
-      result.code = HTTP_STATUS_CODES.UNPROCESSABLE_ENTITY.code
-      result.nameError = HTTP_STATUS_CODES.UNPROCESSABLE_ENTITY.name
-      break
-    }
-    case 'MongoServerError': {
-      if (error.code === 11000) {
-        const entries = Object.entries(error.keyValue)
-        const valores = entries
-          .map(([clave, valor]) => `${clave}:${valor}`)
-          .join(', ')
-        result.message = `El dato ${valores}, ya existe`
-        result.code = HTTP_STATUS_CODES.UNPROCESSABLE_ENTITY.code
-        result.nameError = HTTP_STATUS_CODES.UNPROCESSABLE_ENTITY.name
-      }
-      break
-    }
     case 'CastError':
     case 'Error': {
       result.message = error.message

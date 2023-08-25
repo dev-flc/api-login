@@ -1,15 +1,20 @@
-import { DataAuthUser } from './../interfaces/auth/interface-ahut'
+import { DataAuthUser } from '../interfaces/auth/interface-auth'
+
 import jwt from 'jsonwebtoken'
+
 import { UsuarioJWT } from './../interfaces/users/interface-users'
 
 export const verifyAccessToken = async (token: string) => {
-  jwt.verify(token, process.env.JWT_SECRET || '')
+  return await jwt.verify(token, process.env.JWT_SECRET || '')
 }
 
-export const generateAccessTokenAuth = async (data: UsuarioJWT) => {
-  return jwt.sign(data, process.env.JWT_SECRET || '', {
+export const generateAccessTokenAuth = (data: UsuarioJWT) => {
+  const refreshToken = jwt.sign(data, process.env.JWT_SECRET || '', {
     expiresIn: process.env.EXPIRE_JWT_SESSION
   })
+  const token = jwt.sign(data, process.env.JWT_SECRET || '')
+
+  return { refreshToken, token }
 }
 
 export const generateAccessTokenRegister = async (data: DataAuthUser) => {

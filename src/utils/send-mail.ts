@@ -17,11 +17,11 @@ export const sendMail = async (
     secure: true
   })
 
-  const inf = await transporter.sendMail({
+  const { messageId } = await transporter.sendMail({
     from: '"API LOGIN" <develop.localhost.test@gmail.com',
     html: templateSendMail(userName, token),
     subject: `Bienvenido ${userName}, Favor de confirmar tu cuenta`,
     to: email
   })
-  return inf.messageId
+  return messageId
 }

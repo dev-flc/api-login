@@ -1,6 +1,6 @@
 import { comparePassword } from '../../utils/functions'
-import { DataAuth } from '../../interfaces/auth/interface-ahut'
-import { firestore } from '../../utils/database/connect-firebase'
+import { connectDB } from '../../utils/database/connect-firebase'
+import { DataAuth } from '../../interfaces/auth/interface-auth'
 import { HTTP_STATUS_CODES } from '../../utils/constants/constants'
 import { validationMongoErrors } from '../../utils/utils'
 import { generateAccessTokenAuth, verifyAccessToken } from '../../utils/jwt'
@@ -19,7 +19,7 @@ export const controllerAuthSignIn = async (body: DataAuth) => {
   try {
     const { email, password: candidatePassword } = body
 
-    const collectionRef = collection(firestore, 'users')
+    const collectionRef = collection(connectDB, 'users')
     const emailQuerySnapshot = await getDocs(
       query(collectionRef, where('email', '==', email))
     )
@@ -42,14 +42,14 @@ export const controllerAuthSignIn = async (body: DataAuth) => {
       throw new Error('Contraseña incorrecta')
     }
 
-    const token = await generateAccessTokenAuth({
+    const { token, refreshToken } = generateAccessTokenAuth({
       email,
       id,
       personalInformation,
       userName
     })
 
-    return { code: HTTP_STATUS_CODES.OK.code, data: { token } }
+    return { code: HTTP_STATUS_CODES.OK.code, data: { refreshToken, token } }
   } catch (error) {
     return validationMongoErrors(error)
   }
@@ -57,13 +57,13 @@ export const controllerAuthSignIn = async (body: DataAuth) => {
 
 export const controllerConfirmAccount = async (id: string) => {
   try {
-    const docRefUser = await doc(firestore, 'users', id)
+    const docRefUser = await doc(connectDB, 'users', id)
     const docSnapshotUser = await getDoc(docRefUser)
 
     if (!docSnapshotUser.exists()) {
       const errorMessage = {
         code: HTTP_STATUS_CODES.CONFLICT.code,
-        message: 'Datos de confirmación no validoss',
+        message: 'Datos de confirmación no validos',
         name: 'Custom',
         nameError: 'DataUnprocessable'
       }
